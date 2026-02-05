@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Hygiene Inspection Form - Gloucester City Council</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="council-header">
+                <div class="council-logo">
+                    <div class="logo-placeholder">GCC</div>
+                </div>
+                <div class="council-info">
+                    <h1>Gloucester City Council</h1>
+                    <h2>Food Hygiene Inspection Report</h2>
+                    <p class="subtitle">Environmental Health Department</p>
+                </div>
+            </div>
+        </header>
+
+        <form id="foodInspectionForm">
+            <!-- Section 1: Inspection Details -->
+            <section class="form-section">
+                <h3>Section 1: Inspection Details</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="inspectionDate">Date of Inspection *</label>
+                        <input type="date" id="inspectionDate" name="inspectionDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="inspectionTime">Time of Inspection *</label>
+                        <input type="time" id="inspectionTime" name="inspectionTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="inspectionType">Inspection Type *</label>
+                        <select id="inspectionType" name="inspectionType" required>
+                            <option value="">Select type...</option>
+                            <option value="routine">Routine Inspection</option>
+                            <option value="followup">Follow-up Inspection</option>
+                            <option value="complaint">Complaint Investigation</option>
+                            <option value="new_business">New Business Registration</option>
+                            <option value="revisit">Re-visit</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="inspectorName">Inspector Name *</label>
+                        <input type="text" id="inspectorName" name="inspectorName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="inspectorId">Inspector ID *</label>
+                        <input type="text" id="inspectorId" name="inspectorId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="referenceNumber">Reference Number</label>
+                        <input type="text" id="referenceNumber" name="referenceNumber" placeholder="Auto-generated">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Business Details -->
+            <section class="form-section">
+                <h3>Section 2: Business Details</h3>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="businessName">Business Name *</label>
+                        <input type="text" id="businessName" name="businessName" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="businessAddress">Business Address *</label>
+                        <textarea id="businessAddress" name="businessAddress" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="postcode">Postcode *</label>
+                        <input type="text" id="postcode" name="postcode" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telephone">Telephone</label>
+                        <input type="tel" id="telephone" name="telephone">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ownerName">Owner/Manager Name *</label>
+                        <input type="text" id="ownerName" name="ownerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="businessType">Business Type *</label>
+                        <select id="businessType" name="businessType" required>
+                            <option value="">Select type...</option>
+                            <option value="restaurant">Restaurant/Cafe</option>
+                            <option value="takeaway">Takeaway/Fast Food</option>
+                            <option value="pub">Pub/Bar</option>
+                            <option value="hotel">Hotel/B&B</option>
+                            <option value="retail">Retail Shop</option>
+                            <option value="supermarket">Supermarket</option>
+                            <option value="manufacturer">Food Manufacturer</option>
+                            <option value="caterer">Caterer</option>
+                            <option value="school">School/Hospital</option>
+                            <option value="mobile">Mobile Food Unit</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="numEmployees">Number of Food Handlers</label>
+                        <input type="number" id="numEmployees" name="numEmployees" min="0">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Hygienic Food Handling -->
+            <section class="form-section">
+                <h3>Section 3: Hygienic Food Handling</h3>
+                <p class="section-description">Assessment of hygienic handling of food including preparation, cooking, re-heating, cooling and storage.</p>
+
+                <div class="rating-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Criteria</th>
+                                <th>Compliant</th>
+                                <th>Minor Issue</th>
+                                <th>Major Issue</th>
+                                <th>Critical</th>
+                                <th>N/A</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Temperature control (cooking)</td>
+                                <td><input type="radio" name="tempCooking" value="compliant"></td>
+                                <td><input type="radio" name="tempCooking" value="minor"></td>
+                                <td><input type="radio" name="tempCooking" value="major"></td>
+                                <td><input type="radio" name="tempCooking" value="critical"></td>
+                                <td><input type="radio" name="tempCooking" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Temperature control (chilled storage)</td>
+                                <td><input type="radio" name="tempChilled" value="compliant"></td>
+                                <td><input type="radio" name="tempChilled" value="minor"></td>
+                                <td><input type="radio" name="tempChilled" value="major"></td>
+                                <td><input type="radio" name="tempChilled" value="critical"></td>
+                                <td><input type="radio" name="tempChilled" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Temperature control (hot holding)</td>
+                                <td><input type="radio" name="tempHot" value="compliant"></td>
+                                <td><input type="radio" name="tempHot" value="minor"></td>
+                                <td><input type="radio" name="tempHot" value="major"></td>
+                                <td><input type="radio" name="tempHot" value="critical"></td>
+                                <td><input type="radio" name="tempHot" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Cross-contamination prevention</td>
+                                <td><input type="radio" name="crossContam" value="compliant"></td>
+                                <td><input type="radio" name="crossContam" value="minor"></td>
+                                <td><input type="radio" name="crossContam" value="major"></td>
+                                <td><input type="radio" name="crossContam" value="critical"></td>
+                                <td><input type="radio" name="crossContam" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Personal hygiene practices</td>
+                                <td><input type="radio" name="personalHygiene" value="compliant"></td>
+                                <td><input type="radio" name="personalHygiene" value="minor"></td>
+                                <td><input type="radio" name="personalHygiene" value="major"></td>
+                                <td><input type="radio" name="personalHygiene" value="critical"></td>
+                                <td><input type="radio" name="personalHygiene" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Food storage and labelling</td>
+                                <td><input type="radio" name="foodStorage" value="compliant"></td>
+                                <td><input type="radio" name="foodStorage" value="minor"></td>
+                                <td><input type="radio" name="foodStorage" value="major"></td>
+                                <td><input type="radio" name="foodStorage" value="critical"></td>
+                                <td><input type="radio" name="foodStorage" value="na"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="hygienicScore">Section Score (0-25) *</label>
+                    <input type="number" id="hygienicScore" name="hygienicScore" min="0" max="25" required>
+                    <span class="score-guide">0 = Excellent, 5 = Good, 10 = Generally Satisfactory, 15 = Improvement Necessary, 20 = Major Improvement Necessary, 25 = Urgent Improvement Required</span>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="hygienicComments">Comments/Observations</label>
+                    <textarea id="hygienicComments" name="hygienicComments" rows="3"></textarea>
+                </div>
+            </section>
+
+            <!-- Section 4: Structure and Cleaning -->
+            <section class="form-section">
+                <h3>Section 4: Cleanliness and Condition of Facilities & Building</h3>
+                <p class="section-description">Assessment of cleanliness and condition of facilities and building including pest control.</p>
+
+                <div class="rating-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Criteria</th>
+                                <th>Compliant</th>
+                                <th>Minor Issue</th>
+                                <th>Major Issue</th>
+                                <th>Critical</th>
+                                <th>N/A</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Cleanliness of structure</td>
+                                <td><input type="radio" name="cleanStructure" value="compliant"></td>
+                                <td><input type="radio" name="cleanStructure" value="minor"></td>
+                                <td><input type="radio" name="cleanStructure" value="major"></td>
+                                <td><input type="radio" name="cleanStructure" value="critical"></td>
+                                <td><input type="radio" name="cleanStructure" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Cleanliness of equipment</td>
+                                <td><input type="radio" name="cleanEquipment" value="compliant"></td>
+                                <td><input type="radio" name="cleanEquipment" value="minor"></td>
+                                <td><input type="radio" name="cleanEquipment" value="major"></td>
+                                <td><input type="radio" name="cleanEquipment" value="critical"></td>
+                                <td><input type="radio" name="cleanEquipment" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Condition of structure</td>
+                                <td><input type="radio" name="conditionStructure" value="compliant"></td>
+                                <td><input type="radio" name="conditionStructure" value="minor"></td>
+                                <td><input type="radio" name="conditionStructure" value="major"></td>
+                                <td><input type="radio" name="conditionStructure" value="critical"></td>
+                                <td><input type="radio" name="conditionStructure" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Condition of equipment</td>
+                                <td><input type="radio" name="conditionEquipment" value="compliant"></td>
+                                <td><input type="radio" name="conditionEquipment" value="minor"></td>
+                                <td><input type="radio" name="conditionEquipment" value="major"></td>
+                                <td><input type="radio" name="conditionEquipment" value="critical"></td>
+                                <td><input type="radio" name="conditionEquipment" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Pest control measures</td>
+                                <td><input type="radio" name="pestControl" value="compliant"></td>
+                                <td><input type="radio" name="pestControl" value="minor"></td>
+                                <td><input type="radio" name="pestControl" value="major"></td>
+                                <td><input type="radio" name="pestControl" value="critical"></td>
+                                <td><input type="radio" name="pestControl" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Hand washing facilities</td>
+                                <td><input type="radio" name="handWash" value="compliant"></td>
+                                <td><input type="radio" name="handWash" value="minor"></td>
+                                <td><input type="radio" name="handWash" value="major"></td>
+                                <td><input type="radio" name="handWash" value="critical"></td>
+                                <td><input type="radio" name="handWash" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Ventilation and lighting</td>
+                                <td><input type="radio" name="ventilation" value="compliant"></td>
+                                <td><input type="radio" name="ventilation" value="minor"></td>
+                                <td><input type="radio" name="ventilation" value="major"></td>
+                                <td><input type="radio" name="ventilation" value="critical"></td>
+                                <td><input type="radio" name="ventilation" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Waste disposal facilities</td>
+                                <td><input type="radio" name="wasteDisposal" value="compliant"></td>
+                                <td><input type="radio" name="wasteDisposal" value="minor"></td>
+                                <td><input type="radio" name="wasteDisposal" value="major"></td>
+                                <td><input type="radio" name="wasteDisposal" value="critical"></td>
+                                <td><input type="radio" name="wasteDisposal" value="na"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="structureScore">Section Score (0-25) *</label>
+                    <input type="number" id="structureScore" name="structureScore" min="0" max="25" required>
+                    <span class="score-guide">0 = Excellent, 5 = Good, 10 = Generally Satisfactory, 15 = Improvement Necessary, 20 = Major Improvement Necessary, 25 = Urgent Improvement Required</span>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="structureComments">Comments/Observations</label>
+                    <textarea id="structureComments" name="structureComments" rows="3"></textarea>
+                </div>
+            </section>
+
+            <!-- Section 5: Management of Food Safety -->
+            <section class="form-section">
+                <h3>Section 5: Management of Food Safety</h3>
+                <p class="section-description">Assessment of food safety management procedures and HACCP documentation.</p>
+
+                <div class="rating-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Criteria</th>
+                                <th>Compliant</th>
+                                <th>Minor Issue</th>
+                                <th>Major Issue</th>
+                                <th>Critical</th>
+                                <th>N/A</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Food safety management system/HACCP</td>
+                                <td><input type="radio" name="haccp" value="compliant"></td>
+                                <td><input type="radio" name="haccp" value="minor"></td>
+                                <td><input type="radio" name="haccp" value="major"></td>
+                                <td><input type="radio" name="haccp" value="critical"></td>
+                                <td><input type="radio" name="haccp" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Temperature monitoring records</td>
+                                <td><input type="radio" name="tempRecords" value="compliant"></td>
+                                <td><input type="radio" name="tempRecords" value="minor"></td>
+                                <td><input type="radio" name="tempRecords" value="major"></td>
+                                <td><input type="radio" name="tempRecords" value="critical"></td>
+                                <td><input type="radio" name="tempRecords" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Staff training records</td>
+                                <td><input type="radio" name="trainingRecords" value="compliant"></td>
+                                <td><input type="radio" name="trainingRecords" value="minor"></td>
+                                <td><input type="radio" name="trainingRecords" value="major"></td>
+                                <td><input type="radio" name="trainingRecords" value="critical"></td>
+                                <td><input type="radio" name="trainingRecords" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Supplier traceability</td>
+                                <td><input type="radio" name="traceability" value="compliant"></td>
+                                <td><input type="radio" name="traceability" value="minor"></td>
+                                <td><input type="radio" name="traceability" value="major"></td>
+                                <td><input type="radio" name="traceability" value="critical"></td>
+                                <td><input type="radio" name="traceability" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Allergen management</td>
+                                <td><input type="radio" name="allergens" value="compliant"></td>
+                                <td><input type="radio" name="allergens" value="minor"></td>
+                                <td><input type="radio" name="allergens" value="major"></td>
+                                <td><input type="radio" name="allergens" value="critical"></td>
+                                <td><input type="radio" name="allergens" value="na"></td>
+                            </tr>
+                            <tr>
+                                <td>Cleaning schedules</td>
+                                <td><input type="radio" name="cleaningSchedule" value="compliant"></td>
+                                <td><input type="radio" name="cleaningSchedule" value="minor"></td>
+                                <td><input type="radio" name="cleaningSchedule" value="major"></td>
+                                <td><input type="radio" name="cleaningSchedule" value="critical"></td>
+                                <td><input type="radio" name="cleaningSchedule" value="na"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="managementScore">Section Score (0-30) *</label>
+                    <input type="number" id="managementScore" name="managementScore" min="0" max="30" required>
+                    <span class="score-guide">0 = Excellent, 5 = Very Good, 10 = Good, 20 = Generally Satisfactory, 30 = Improvement Necessary</span>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="managementComments">Comments/Observations</label>
+                    <textarea id="managementComments" name="managementComments" rows="3"></textarea>
+                </div>
+            </section>
+
+            <!-- Section 6: Temperature Readings -->
+            <section class="form-section">
+                <h3>Section 6: Temperature Readings</h3>
+                <p class="section-description">Record temperature readings taken during inspection.</p>
+
+                <div id="temperatureReadings">
+                    <div class="temp-reading-row">
+                        <div class="form-group">
+                            <label>Item/Equipment</label>
+                            <input type="text" name="tempItem[]" placeholder="e.g., Fridge 1">
+                        </div>
+                        <div class="form-group">
+                            <label>Temperature (°C)</label>
+                            <input type="number" name="tempReading[]" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Required Range</label>
+                            <input type="text" name="tempRequired[]" placeholder="e.g., 0-5°C">
+                        </div>
+                        <div class="form-group">
+                            <label>Compliant</label>
+                            <select name="tempCompliant[]">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="addTempReading" class="btn-secondary">+ Add Temperature Reading</button>
+            </section>
+
+            <!-- Section 7: Overall Rating -->
+            <section class="form-section rating-section">
+                <h3>Section 7: Overall Food Hygiene Rating</h3>
+
+                <div class="total-score-display">
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span class="score-label">Hygienic Food Handling:</span>
+                            <span id="displayHygienic" class="score-value">0</span>/25
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Structure and Cleaning:</span>
+                            <span id="displayStructure" class="score-value">0</span>/25
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Management of Food Safety:</span>
+                            <span id="displayManagement" class="score-value">0</span>/30
+                        </div>
+                        <div class="score-total">
+                            <span class="score-label">Total Score:</span>
+                            <span id="displayTotal" class="score-value">0</span>/80
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="overallRating">Food Hygiene Rating (0-5) *</label>
+                    <select id="overallRating" name="overallRating" required>
+                        <option value="">Select rating...</option>
+                        <option value="5">5 - Very Good</option>
+                        <option value="4">4 - Good</option>
+                        <option value="3">3 - Generally Satisfactory</option>
+                        <option value="2">2 - Improvement Necessary</option>
+                        <option value="1">1 - Major Improvement Necessary</option>
+                        <option value="0">0 - Urgent Improvement Required</option>
+                    </select>
+                </div>
+
+                <div class="rating-display" id="ratingDisplay">
+                    <span class="rating-badge">-</span>
+                </div>
+            </section>
+
+            <!-- Section 8: Actions Required -->
+            <section class="form-section">
+                <h3>Section 8: Actions Required</h3>
+
+                <div class="form-group full-width">
+                    <label>Enforcement Action</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="enforcement" value="written_warning">
+                            Written Warning
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="enforcement" value="improvement_notice">
+                            Hygiene Improvement Notice
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="enforcement" value="emergency_prohibition">
+                            Emergency Prohibition Notice
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="enforcement" value="voluntary_closure">
+                            Voluntary Closure
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="enforcement" value="none">
+                            No Action Required
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="actionsRequired">Detailed Actions Required</label>
+                    <textarea id="actionsRequired" name="actionsRequired" rows="4" placeholder="List specific improvements or corrective actions required..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="revisitRequired">Revisit Required?</label>
+                        <select id="revisitRequired" name="revisitRequired">
+                            <option value="no">No</option>
+                            <option value="yes">Yes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="revisitDate">Revisit Date</label>
+                        <input type="date" id="revisitDate" name="revisitDate">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 9: Declaration -->
+            <section class="form-section">
+                <h3>Section 9: Declaration & Signatures</h3>
+
+                <div class="form-group full-width">
+                    <label for="additionalNotes">Additional Notes/Observations</label>
+                    <textarea id="additionalNotes" name="additionalNotes" rows="4"></textarea>
+                </div>
+
+                <div class="declaration-box">
+                    <p>I confirm that this inspection has been carried out in accordance with the Food Safety Act 1990 and associated regulations. The information recorded above is accurate and complete to the best of my knowledge.</p>
+                </div>
+
+                <div class="form-row signature-row">
+                    <div class="form-group">
+                        <label for="inspectorSignature">Inspector Signature *</label>
+                        <div class="signature-pad" id="inspectorSignaturePad">
+                            <canvas id="inspectorCanvas"></canvas>
+                            <button type="button" class="btn-clear-sig" data-canvas="inspectorCanvas">Clear</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="businessSignature">Business Representative Signature</label>
+                        <div class="signature-pad" id="businessSignaturePad">
+                            <canvas id="businessCanvas"></canvas>
+                            <button type="button" class="btn-clear-sig" data-canvas="businessCanvas">Clear</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="businessRepName">Business Representative Name</label>
+                        <input type="text" id="businessRepName" name="businessRepName">
+                    </div>
+                    <div class="form-group">
+                        <label for="businessRepRole">Role/Position</label>
+                        <input type="text" id="businessRepRole" name="businessRepRole">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" id="saveDraft" class="btn-secondary">Save Draft</button>
+                <button type="button" id="printForm" class="btn-secondary">Print Form</button>
+                <button type="submit" id="submitForm" class="btn-primary">Submit Inspection</button>
+            </div>
+        </form>
+
+        <footer>
+            <p>Gloucester City Council - Environmental Health Department</p>
+            <p>This is a test/demonstration form for food hygiene inspection purposes.</p>
+            <p>&copy; 2026 Gloucester City Council. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Inspection Submitted Successfully</h2>
+            <p>The food hygiene inspection report has been submitted.</p>
+            <p>Reference Number: <strong id="confirmRefNumber"></strong></p>
+            <button type="button" class="btn-primary" onclick="location.reload()">Start New Inspection</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
