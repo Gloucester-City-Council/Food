@@ -436,6 +436,14 @@ function showConfirmation(refNumber) {
 
 // Check for saved draft on load
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if launched from the dashboard with a premises reference
+    const urlParams = new URLSearchParams(window.location.search);
+    const premisesRef = urlParams.get('premises');
+    if (premisesRef) {
+        loadPremisesFromDashboard(premisesRef);
+        return;
+    }
+
     const draftData = localStorage.getItem('foodInspectionDraft');
     if (draftData) {
         const loadDraftConfirm = confirm('A saved draft was found. Would you like to load it?');
@@ -444,3 +452,88 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+/**
+ * Auto-populate the inspection form with premises data from the
+ * Idox Uniform connector via the dashboard API.
+ *
+ * This is called when the form is opened from the dashboard with
+ * a ?premises=REF query parameter.
+ */
+async function loadPremisesFromDashboard(premisesRef) {
+    try {
+        const resp = await fetch(`/api/visit-sheets/${encodeURIComponent(premisesRef)}`);
+        if (!resp.ok) throw new Error('Failed to load premises data');
+        const sheet = await resp.json();
+        populateFormFromVisitSheet(sheet);
+    } catch (err) {
+        console.warn('Could not auto-populate from dashboard:', err.message);
+    }
+}
+
+/**
+ * Populate the digital inspection form fields from a visit sheet
+ * data structure returned by the API.
+ */
+function populateFormFromVisitSheet(sheet) {
+    const biz = sheet.businessDetails;
+    const prev = sheet.previousInspectionSummary;
+    const details = sheet.inspectionDetails;
+
+    // Inspection details
+    if (details.inspectionDate) setField('inspectionDate', details.inspectionDate);
+    if (details.inspectionTime) setField('inspectionTime', details.inspectionTime);
+    if (details.inspectorName) setField('inspectorName', details.inspectorName);
+    if (details.inspectorId) setField('inspectorId', details.inspectorId);
+
+    // Set inspection type
+    if (details.inspectionType) setField('inspectionType', details.inspectionType);
+
+    // Business details
+    if (biz.businessName) setField('businessName', biz.tradingName || biz.businessName);
+    if (biz.businessAddress) setField('businessAddress', biz.businessAddress);
+    if (biz.postcode) setField('postcode', biz.postcode);
+    if (biz.telephone) setField('telephone', biz.telephone);
+    if (biz.email) setField('email', biz.email);
+    if (biz.foodBusinessOperator) setField('ownerName', biz.foodBusinessOperator);
+    if (biz.businessType) setField('businessType', biz.businessType);
+    if (biz.numberOfFoodHandlers) setField('numEmployees', biz.numberOfFoodHandlers);
+
+    // Pre-populate temperature readings from business type
+    if (sheet.temperatureReadings && sheet.temperatureReadings.length > 0) {
+        const firstRow = document.querySelector('.temp-reading-row');
+        if (firstRow) {
+            const inputs = firstRow.querySelectorAll('input');
+            if (inputs[0]) inputs[0].value = sheet.temperatureReadings[0].item;
+            if (inputs[2]) inputs[2].value = sheet.temperatureReadings[0].requiredRange;
+        }
+        // Add additional temperature rows
+        for (let i = 1; i < sheet.temperatureReadings.length; i++) {
+            addTemperatureRow();
+            const rows = document.querySelectorAll('.temp-reading-row');
+            const row = rows[rows.length - 1];
+            if (row) {
+                const inputs = row.querySelectorAll('input');
+                if (inputs[0]) inputs[0].value = sheet.temperatureReadings[i].item;
+                if (inputs[2]) inputs[2].value = sheet.temperatureReadings[i].requiredRange;
+            }
+        }
+    }
+
+    // Add a note about the pre-population source
+    const notesField = document.getElementById('additionalNotes');
+    if (notesField) {
+        const notes = [];
+        notes.push(`Pre-populated from Idox Uniform (${biz.premisesRef})`);
+        if (prev.riskCategory) notes.push(`Risk Category: ${prev.riskCategory}`);
+        if (prev.currentFhrsRating != null) notes.push(`Current FHRS: ${prev.currentFhrsRating}`);
+        if (prev.lastInspectionDate) notes.push(`Last Inspection: ${prev.lastInspectionDate}`);
+        if (prev.officerNotes) notes.push(`Officer Notes: ${prev.officerNotes}`);
+        notesField.value = notes.join('\n');
+    }
+}
+
+function setField(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.value = value;
+}
