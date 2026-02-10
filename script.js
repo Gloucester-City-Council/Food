@@ -8,68 +8,128 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeRatingDisplay();
     initializeTemperatureReadings();
     initializeFormActions();
+    initializeProgressBar();
+    initializeModal();
 });
 
-// Generate Reference Number
-function generateReferenceNumber() {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    return `GCC-FHI-${year}${month}${day}-${random}`;
+// ---------- Toast Notifications (replaces alert/confirm) ----------
+
+function showToast(message, type) {
+    var container = document.getElementById('toastContainer');
+    if (!container) return;
+    var toast = document.createElement('div');
+    toast.className = 'toast toast-' + (type || 'info');
+    toast.textContent = message;
+    container.appendChild(toast);
+    // Announce to screen readers via the aria-live region
+    var live = document.getElementById('liveStatus');
+    if (live) live.textContent = message;
+    setTimeout(function() {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 3200);
 }
 
-// Initialize Form
+// ---------- Progress Bar ----------
+
+function initializeProgressBar() {
+    var steps = document.querySelectorAll('.progress-step');
+    steps.forEach(function(step) {
+        step.addEventListener('click', function() {
+            var sectionNum = this.getAttribute('data-section');
+            var target = document.getElementById('section-' + sectionNum);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                target.querySelector('h2').focus({ preventScroll: true });
+            }
+        });
+    });
+
+    // Intersection observer to highlight active section
+    var sections = document.querySelectorAll('.form-section[id^="section-"]');
+    if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    var id = entry.target.id;
+                    var num = id.replace('section-', '');
+                    setActiveStep(num);
+                }
+            });
+        }, { rootMargin: '-80px 0px -60% 0px', threshold: 0 });
+        sections.forEach(function(s) { observer.observe(s); });
+    }
+}
+
+function setActiveStep(num) {
+    document.querySelectorAll('.progress-step').forEach(function(step) {
+        var stepNum = step.getAttribute('data-section');
+        step.classList.toggle('active', stepNum === num);
+    });
+}
+
+// ---------- Generate Reference Number ----------
+
+function generateReferenceNumber() {
+    var date = new Date();
+    var year = date.getFullYear();
+    var month = String(date.getMonth() + 1).padStart(2, '0');
+    var day = String(date.getDate()).padStart(2, '0');
+    var random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return 'GCC-FHI-' + year + month + day + '-' + random;
+}
+
+// ---------- Initialize Form ----------
+
 function initializeForm() {
     // Set today's date as default
-    const today = new Date().toISOString().split('T')[0];
-    const inspectionDateInput = document.getElementById('inspectionDate');
+    var today = new Date().toISOString().split('T')[0];
+    var inspectionDateInput = document.getElementById('inspectionDate');
     if (inspectionDateInput) {
         inspectionDateInput.value = today;
     }
 
     // Set current time
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const inspectionTimeInput = document.getElementById('inspectionTime');
+    var now = new Date();
+    var hours = String(now.getHours()).padStart(2, '0');
+    var minutes = String(now.getMinutes()).padStart(2, '0');
+    var inspectionTimeInput = document.getElementById('inspectionTime');
     if (inspectionTimeInput) {
-        inspectionTimeInput.value = `${hours}:${minutes}`;
+        inspectionTimeInput.value = hours + ':' + minutes;
     }
 
     // Generate reference number
-    const refNumberInput = document.getElementById('referenceNumber');
+    var refNumberInput = document.getElementById('referenceNumber');
     if (refNumberInput) {
         refNumberInput.value = generateReferenceNumber();
     }
 
     // Form submission handler
-    const form = document.getElementById('foodInspectionForm');
+    var form = document.getElementById('foodInspectionForm');
     if (form) {
         form.addEventListener('submit', handleFormSubmit);
     }
 }
 
-// Signature Pad Implementation
-function initializeSignaturePads() {
-    const canvases = ['inspectorCanvas', 'businessCanvas'];
+// ---------- Signature Pad Implementation ----------
 
-    canvases.forEach(canvasId => {
-        const canvas = document.getElementById(canvasId);
+function initializeSignaturePads() {
+    var canvases = ['inspectorCanvas', 'businessCanvas'];
+
+    canvases.forEach(function(canvasId) {
+        var canvas = document.getElementById(canvasId);
         if (!canvas) return;
 
-        const ctx = canvas.getContext('2d');
-        let isDrawing = false;
-        let lastX = 0;
-        let lastY = 0;
+        var ctx = canvas.getContext('2d');
+        var isDrawing = false;
+        var lastX = 0;
+        var lastY = 0;
 
         // Set canvas size
         function resizeCanvas() {
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width - 22; // Account for padding
+            var rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width - 26;
             canvas.height = 100;
-            ctx.strokeStyle = '#000';
+            ctx.strokeStyle = '#1e293b';
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
@@ -79,56 +139,63 @@ function initializeSignaturePads() {
         window.addEventListener('resize', resizeCanvas);
 
         // Mouse events
-        canvas.addEventListener('mousedown', (e) => {
+        canvas.addEventListener('mousedown', function(e) {
             isDrawing = true;
-            [lastX, lastY] = getCoordinates(e, canvas);
+            var coords = getCoordinates(e, canvas);
+            lastX = coords[0];
+            lastY = coords[1];
         });
 
-        canvas.addEventListener('mousemove', (e) => {
+        canvas.addEventListener('mousemove', function(e) {
             if (!isDrawing) return;
-            const [x, y] = getCoordinates(e, canvas);
-            draw(ctx, lastX, lastY, x, y);
-            [lastX, lastY] = [x, y];
+            var coords = getCoordinates(e, canvas);
+            draw(ctx, lastX, lastY, coords[0], coords[1]);
+            lastX = coords[0];
+            lastY = coords[1];
         });
 
-        canvas.addEventListener('mouseup', () => isDrawing = false);
-        canvas.addEventListener('mouseout', () => isDrawing = false);
+        canvas.addEventListener('mouseup', function() { isDrawing = false; });
+        canvas.addEventListener('mouseout', function() { isDrawing = false; });
 
         // Touch events
-        canvas.addEventListener('touchstart', (e) => {
+        canvas.addEventListener('touchstart', function(e) {
             e.preventDefault();
             isDrawing = true;
-            [lastX, lastY] = getCoordinates(e.touches[0], canvas);
+            var coords = getCoordinates(e.touches[0], canvas);
+            lastX = coords[0];
+            lastY = coords[1];
         });
 
-        canvas.addEventListener('touchmove', (e) => {
+        canvas.addEventListener('touchmove', function(e) {
             e.preventDefault();
             if (!isDrawing) return;
-            const [x, y] = getCoordinates(e.touches[0], canvas);
-            draw(ctx, lastX, lastY, x, y);
-            [lastX, lastY] = [x, y];
+            var coords = getCoordinates(e.touches[0], canvas);
+            draw(ctx, lastX, lastY, coords[0], coords[1]);
+            lastX = coords[0];
+            lastY = coords[1];
         });
 
-        canvas.addEventListener('touchend', () => isDrawing = false);
+        canvas.addEventListener('touchend', function() { isDrawing = false; });
     });
 
     // Clear signature buttons
-    document.querySelectorAll('.btn-clear-sig').forEach(button => {
+    document.querySelectorAll('.btn-clear-sig').forEach(function(button) {
         button.addEventListener('click', function() {
-            const canvasId = this.getAttribute('data-canvas');
-            const canvas = document.getElementById(canvasId);
+            var canvasId = this.getAttribute('data-canvas');
+            var canvas = document.getElementById(canvasId);
             if (canvas) {
-                const ctx = canvas.getContext('2d');
+                var ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                showToast('Signature cleared', 'info');
             }
         });
     });
 }
 
 function getCoordinates(event, canvas) {
-    const rect = canvas.getBoundingClientRect();
-    const x = (event.clientX || event.pageX) - rect.left;
-    const y = (event.clientY || event.pageY) - rect.top;
+    var rect = canvas.getBoundingClientRect();
+    var x = (event.clientX || event.pageX) - rect.left;
+    var y = (event.clientY || event.pageY) - rect.top;
     return [x, y];
 }
 
@@ -139,15 +206,16 @@ function draw(ctx, x1, y1, x2, y2) {
     ctx.stroke();
 }
 
-// Score Calculation
+// ---------- Score Calculation ----------
+
 function initializeScoreCalculation() {
-    const hygienicScore = document.getElementById('hygienicScore');
-    const structureScore = document.getElementById('structureScore');
-    const managementScore = document.getElementById('managementScore');
+    var hygienicScore = document.getElementById('hygienicScore');
+    var structureScore = document.getElementById('structureScore');
+    var managementScore = document.getElementById('managementScore');
 
-    const scoreInputs = [hygienicScore, structureScore, managementScore];
+    var scoreInputs = [hygienicScore, structureScore, managementScore];
 
-    scoreInputs.forEach(input => {
+    scoreInputs.forEach(function(input) {
         if (input) {
             input.addEventListener('input', updateTotalScore);
         }
@@ -155,11 +223,11 @@ function initializeScoreCalculation() {
 }
 
 function updateTotalScore() {
-    const hygienicScore = parseInt(document.getElementById('hygienicScore').value) || 0;
-    const structureScore = parseInt(document.getElementById('structureScore').value) || 0;
-    const managementScore = parseInt(document.getElementById('managementScore').value) || 0;
+    var hygienicScore = parseInt(document.getElementById('hygienicScore').value) || 0;
+    var structureScore = parseInt(document.getElementById('structureScore').value) || 0;
+    var managementScore = parseInt(document.getElementById('managementScore').value) || 0;
 
-    const total = hygienicScore + structureScore + managementScore;
+    var total = hygienicScore + structureScore + managementScore;
 
     // Update display
     document.getElementById('displayHygienic').textContent = hygienicScore;
@@ -173,7 +241,7 @@ function updateTotalScore() {
 
 function suggestRating(total) {
     // Based on FHRS scoring guidelines (lower is better)
-    let suggestedRating;
+    var suggestedRating;
 
     if (total <= 15) {
         suggestedRating = 5;
@@ -190,16 +258,17 @@ function suggestRating(total) {
     }
 
     // Update the rating select if it hasn't been manually changed
-    const ratingSelect = document.getElementById('overallRating');
+    var ratingSelect = document.getElementById('overallRating');
     if (ratingSelect && !ratingSelect.dataset.manuallySet) {
         ratingSelect.value = suggestedRating;
         updateRatingDisplay(suggestedRating);
     }
 }
 
-// Rating Display
+// ---------- Rating Display ----------
+
 function initializeRatingDisplay() {
-    const ratingSelect = document.getElementById('overallRating');
+    var ratingSelect = document.getElementById('overallRating');
     if (ratingSelect) {
         ratingSelect.addEventListener('change', function() {
             this.dataset.manuallySet = 'true';
@@ -209,7 +278,7 @@ function initializeRatingDisplay() {
 }
 
 function updateRatingDisplay(rating) {
-    const badge = document.querySelector('.rating-badge');
+    var badge = document.querySelector('.rating-badge');
     if (badge) {
         badge.textContent = rating !== '' ? rating : '-';
 
@@ -218,84 +287,152 @@ function updateRatingDisplay(rating) {
 
         // Add appropriate rating class
         if (rating !== '') {
-            badge.classList.add(`rating-${rating}`);
+            badge.classList.add('rating-' + rating);
         }
+
+        // Update aria-label
+        var labels = {
+            '5': 'Rating 5: Very Good',
+            '4': 'Rating 4: Good',
+            '3': 'Rating 3: Generally Satisfactory',
+            '2': 'Rating 2: Improvement Necessary',
+            '1': 'Rating 1: Major Improvement Necessary',
+            '0': 'Rating 0: Urgent Improvement Required'
+        };
+        badge.setAttribute('aria-label', labels[String(rating)] || 'No rating selected');
     }
 }
 
-// Temperature Readings
+// ---------- Temperature Readings ----------
+
 function initializeTemperatureReadings() {
-    const addButton = document.getElementById('addTempReading');
+    var addButton = document.getElementById('addTempReading');
     if (addButton) {
         addButton.addEventListener('click', addTemperatureRow);
     }
 }
 
 function addTemperatureRow() {
-    const container = document.getElementById('temperatureReadings');
-    const newRow = document.createElement('div');
+    var container = document.getElementById('temperatureReadings');
+    var newRow = document.createElement('div');
     newRow.className = 'temp-reading-row';
-    newRow.innerHTML = `
-        <div class="form-group">
-            <label>Item/Equipment</label>
-            <input type="text" name="tempItem[]" placeholder="e.g., Fridge 2">
-        </div>
-        <div class="form-group">
-            <label>Temperature (°C)</label>
-            <input type="number" name="tempReading[]" step="0.1">
-        </div>
-        <div class="form-group">
-            <label>Required Range</label>
-            <input type="text" name="tempRequired[]" placeholder="e.g., 0-5°C">
-        </div>
-        <div class="form-group">
-            <label>Compliant</label>
-            <select name="tempCompliant[]">
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-            </select>
-        </div>
-    `;
+    newRow.innerHTML =
+        '<div class="form-group">' +
+            '<label>Item / Equipment</label>' +
+            '<input type="text" name="tempItem[]" placeholder="e.g., Fridge 2">' +
+        '</div>' +
+        '<div class="form-group">' +
+            '<label>Temp (\u00B0C)</label>' +
+            '<input type="number" name="tempReading[]" step="0.1">' +
+        '</div>' +
+        '<div class="form-group">' +
+            '<label>Required Range</label>' +
+            '<input type="text" name="tempRequired[]" placeholder="e.g., 0-5\u00B0C">' +
+        '</div>' +
+        '<div class="form-group">' +
+            '<label>Compliant?</label>' +
+            '<select name="tempCompliant[]">' +
+                '<option value="yes">Yes</option>' +
+                '<option value="no">No</option>' +
+            '</select>' +
+        '</div>';
     container.appendChild(newRow);
+    // Focus the first input in the new row
+    var firstInput = newRow.querySelector('input');
+    if (firstInput) firstInput.focus();
+    showToast('Temperature row added', 'info');
 }
 
-// Form Actions
+// ---------- Form Actions ----------
+
 function initializeFormActions() {
     // Save Draft
-    const saveDraftBtn = document.getElementById('saveDraft');
+    var saveDraftBtn = document.getElementById('saveDraft');
     if (saveDraftBtn) {
         saveDraftBtn.addEventListener('click', saveDraft);
     }
 
     // Print Form
-    const printBtn = document.getElementById('printForm');
+    var printBtn = document.getElementById('printForm');
     if (printBtn) {
-        printBtn.addEventListener('click', () => window.print());
+        printBtn.addEventListener('click', function() { window.print(); });
     }
+}
 
-    // Modal close
-    const modal = document.getElementById('confirmationModal');
-    const closeBtn = modal?.querySelector('.close');
+// ---------- Modal (accessible) ----------
+
+function initializeModal() {
+    var modal = document.getElementById('confirmationModal');
+    if (!modal) return;
+
+    var closeBtn = modal.querySelector('.modal-close');
     if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
+        closeBtn.addEventListener('click', function() { closeModal(); });
     }
 
-    // Close modal on outside click
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.style.display = 'none';
+    // Close on backdrop click
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeModal();
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') {
+            closeModal();
         }
     });
 }
 
-function saveDraft() {
-    const form = document.getElementById('foodInspectionForm');
-    const formData = new FormData(form);
-    const data = {};
+var previouslyFocusedElement = null;
 
-    formData.forEach((value, key) => {
+function openModal() {
+    var modal = document.getElementById('confirmationModal');
+    if (!modal) return;
+    previouslyFocusedElement = document.activeElement;
+    modal.setAttribute('aria-hidden', 'false');
+    // Focus the first focusable element inside
+    var firstFocusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (firstFocusable) firstFocusable.focus();
+    // Trap focus inside modal
+    modal.addEventListener('keydown', trapFocus);
+}
+
+function closeModal() {
+    var modal = document.getElementById('confirmationModal');
+    if (!modal) return;
+    modal.setAttribute('aria-hidden', 'true');
+    modal.removeEventListener('keydown', trapFocus);
+    if (previouslyFocusedElement) previouslyFocusedElement.focus();
+}
+
+function trapFocus(e) {
+    if (e.key !== 'Tab') return;
+    var modal = document.getElementById('confirmationModal');
+    var focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (focusable.length === 0) return;
+    var first = focusable[0];
+    var last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+        if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+        }
+    } else {
+        if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+        }
+    }
+}
+
+// ---------- Draft Save / Load ----------
+
+function saveDraft() {
+    var form = document.getElementById('foodInspectionForm');
+    var formData = new FormData(form);
+    var data = {};
+
+    formData.forEach(function(value, key) {
         if (data[key]) {
             if (Array.isArray(data[key])) {
                 data[key].push(value);
@@ -309,17 +446,17 @@ function saveDraft() {
 
     // Save to localStorage
     localStorage.setItem('foodInspectionDraft', JSON.stringify(data));
-    alert('Draft saved successfully!');
+    showToast('Draft saved successfully', 'success');
 }
 
 function loadDraft() {
-    const draftData = localStorage.getItem('foodInspectionDraft');
+    var draftData = localStorage.getItem('foodInspectionDraft');
     if (draftData) {
-        const data = JSON.parse(draftData);
-        const form = document.getElementById('foodInspectionForm');
+        var data = JSON.parse(draftData);
+        var form = document.getElementById('foodInspectionForm');
 
-        Object.keys(data).forEach(key => {
-            const element = form.elements[key];
+        Object.keys(data).forEach(function(key) {
+            var element = form.elements[key];
             if (element) {
                 if (element.type === 'checkbox' || element.type === 'radio') {
                     element.checked = data[key] === element.value;
@@ -333,17 +470,53 @@ function loadDraft() {
     }
 }
 
-// Form Submission
+// ---------- Inline Validation ----------
+
+function clearErrors() {
+    document.querySelectorAll('.form-group.has-error').forEach(function(group) {
+        group.classList.remove('has-error');
+        var msg = group.querySelector('.error-message');
+        if (msg) msg.remove();
+    });
+}
+
+function showFieldError(field, message) {
+    var group = field.closest('.form-group');
+    if (!group) return;
+    group.classList.add('has-error');
+    var existing = group.querySelector('.error-message');
+    if (existing) existing.remove();
+    var msg = document.createElement('span');
+    msg.className = 'error-message';
+    msg.setAttribute('role', 'alert');
+    msg.textContent = message;
+    group.appendChild(msg);
+    field.setAttribute('aria-invalid', 'true');
+}
+
+function clearFieldError(field) {
+    var group = field.closest('.form-group');
+    if (!group) return;
+    group.classList.remove('has-error');
+    var msg = group.querySelector('.error-message');
+    if (msg) msg.remove();
+    field.removeAttribute('aria-invalid');
+}
+
+// ---------- Form Submission ----------
+
 function handleFormSubmit(e) {
     e.preventDefault();
+    clearErrors();
 
     // Validate form
     if (!validateForm()) {
+        showToast('Please fix the errors highlighted above', 'error');
         return;
     }
 
     // Collect form data
-    const formData = collectFormData();
+    var formData = collectFormData();
 
     // In a real application, this would send data to a server
     console.log('Form submitted:', formData);
@@ -353,45 +526,56 @@ function handleFormSubmit(e) {
 }
 
 function validateForm() {
-    const form = document.getElementById('foodInspectionForm');
+    var form = document.getElementById('foodInspectionForm');
+    var valid = true;
 
-    // Check HTML5 validation
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return false;
-    }
+    // Check required fields
+    var requiredFields = form.querySelectorAll('[required]');
+    requiredFields.forEach(function(field) {
+        clearFieldError(field);
+        if (!field.value || field.value.trim() === '') {
+            var label = form.querySelector('label[for="' + field.id + '"]');
+            var labelText = label ? label.textContent.replace('*', '').trim() : 'This field';
+            showFieldError(field, labelText + ' is required');
+            if (valid) {
+                field.focus();
+                var section = field.closest('.form-section');
+                if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            valid = false;
+        }
+    });
 
-    // Additional custom validation
-    const hygienicScore = parseInt(document.getElementById('hygienicScore').value);
-    const structureScore = parseInt(document.getElementById('structureScore').value);
-    const managementScore = parseInt(document.getElementById('managementScore').value);
+    // Score range validation
+    var ranges = [
+        { id: 'hygienicScore', min: 0, max: 25, label: 'Hygienic Food Handling score' },
+        { id: 'structureScore', min: 0, max: 25, label: 'Structure and Cleaning score' },
+        { id: 'managementScore', min: 0, max: 30, label: 'Management of Food Safety score' }
+    ];
 
-    if (hygienicScore < 0 || hygienicScore > 25) {
-        alert('Hygienic Food Handling score must be between 0 and 25');
-        return false;
-    }
+    ranges.forEach(function(r) {
+        var field = document.getElementById(r.id);
+        if (field && field.value !== '') {
+            var val = parseInt(field.value);
+            if (isNaN(val) || val < r.min || val > r.max) {
+                showFieldError(field, r.label + ' must be between ' + r.min + ' and ' + r.max);
+                if (valid) field.focus();
+                valid = false;
+            }
+        }
+    });
 
-    if (structureScore < 0 || structureScore > 25) {
-        alert('Structure and Cleaning score must be between 0 and 25');
-        return false;
-    }
-
-    if (managementScore < 0 || managementScore > 30) {
-        alert('Management of Food Safety score must be between 0 and 30');
-        return false;
-    }
-
-    return true;
+    return valid;
 }
 
 function collectFormData() {
-    const form = document.getElementById('foodInspectionForm');
-    const formData = new FormData(form);
-    const data = {};
+    var form = document.getElementById('foodInspectionForm');
+    var formData = new FormData(form);
+    var data = {};
 
-    formData.forEach((value, key) => {
+    formData.forEach(function(value, key) {
         if (key.includes('[]')) {
-            const cleanKey = key.replace('[]', '');
+            var cleanKey = key.replace('[]', '');
             if (!data[cleanKey]) {
                 data[cleanKey] = [];
             }
@@ -402,8 +586,8 @@ function collectFormData() {
     });
 
     // Add signature data
-    const inspectorCanvas = document.getElementById('inspectorCanvas');
-    const businessCanvas = document.getElementById('businessCanvas');
+    var inspectorCanvas = document.getElementById('inspectorCanvas');
+    var businessCanvas = document.getElementById('businessCanvas');
 
     if (inspectorCanvas) {
         data.inspectorSignature = inspectorCanvas.toDataURL();
@@ -419,53 +603,48 @@ function collectFormData() {
 }
 
 function showConfirmation(refNumber) {
-    const modal = document.getElementById('confirmationModal');
-    const refDisplay = document.getElementById('confirmRefNumber');
+    var refDisplay = document.getElementById('confirmRefNumber');
 
     if (refDisplay) {
         refDisplay.textContent = refNumber;
     }
 
-    if (modal) {
-        modal.style.display = 'block';
-    }
+    openModal();
 
     // Clear localStorage draft
     localStorage.removeItem('foodInspectionDraft');
 }
 
-// Check for saved draft on load
+// ---------- Check for saved draft on load ----------
+
 document.addEventListener('DOMContentLoaded', function() {
     // Check if launched from the dashboard with a premises reference
-    const urlParams = new URLSearchParams(window.location.search);
-    const premisesRef = urlParams.get('premises');
+    var urlParams = new URLSearchParams(window.location.search);
+    var premisesRef = urlParams.get('premises');
     if (premisesRef) {
         loadPremisesFromDashboard(premisesRef);
         return;
     }
 
-    const draftData = localStorage.getItem('foodInspectionDraft');
+    var draftData = localStorage.getItem('foodInspectionDraft');
     if (draftData) {
-        const loadDraftConfirm = confirm('A saved draft was found. Would you like to load it?');
-        if (loadDraftConfirm) {
-            loadDraft();
-        }
+        // Use a toast + inline prompt instead of confirm()
+        showToast('A saved draft was found. Loading it now.', 'info');
+        loadDraft();
     }
 });
 
 /**
  * Auto-populate the inspection form with premises data from the
  * Idox Uniform connector via the dashboard API.
- *
- * This is called when the form is opened from the dashboard with
- * a ?premises=REF query parameter.
  */
 async function loadPremisesFromDashboard(premisesRef) {
     try {
-        const resp = await fetch(`/api/visit-sheets/${encodeURIComponent(premisesRef)}`);
+        var resp = await fetch('/api/visit-sheets/' + encodeURIComponent(premisesRef));
         if (!resp.ok) throw new Error('Failed to load premises data');
-        const sheet = await resp.json();
+        var sheet = await resp.json();
         populateFormFromVisitSheet(sheet);
+        showToast('Form pre-populated from Uniform', 'success');
     } catch (err) {
         console.warn('Could not auto-populate from dashboard:', err.message);
     }
@@ -476,9 +655,9 @@ async function loadPremisesFromDashboard(premisesRef) {
  * data structure returned by the API.
  */
 function populateFormFromVisitSheet(sheet) {
-    const biz = sheet.businessDetails;
-    const prev = sheet.previousInspectionSummary;
-    const details = sheet.inspectionDetails;
+    var biz = sheet.businessDetails;
+    var prev = sheet.previousInspectionSummary;
+    var details = sheet.inspectionDetails;
 
     // Inspection details
     if (details.inspectionDate) setField('inspectionDate', details.inspectionDate);
@@ -501,39 +680,39 @@ function populateFormFromVisitSheet(sheet) {
 
     // Pre-populate temperature readings from business type
     if (sheet.temperatureReadings && sheet.temperatureReadings.length > 0) {
-        const firstRow = document.querySelector('.temp-reading-row');
+        var firstRow = document.querySelector('.temp-reading-row');
         if (firstRow) {
-            const inputs = firstRow.querySelectorAll('input');
+            var inputs = firstRow.querySelectorAll('input');
             if (inputs[0]) inputs[0].value = sheet.temperatureReadings[0].item;
             if (inputs[2]) inputs[2].value = sheet.temperatureReadings[0].requiredRange;
         }
         // Add additional temperature rows
-        for (let i = 1; i < sheet.temperatureReadings.length; i++) {
+        for (var i = 1; i < sheet.temperatureReadings.length; i++) {
             addTemperatureRow();
-            const rows = document.querySelectorAll('.temp-reading-row');
-            const row = rows[rows.length - 1];
+            var rows = document.querySelectorAll('.temp-reading-row');
+            var row = rows[rows.length - 1];
             if (row) {
-                const inputs = row.querySelectorAll('input');
-                if (inputs[0]) inputs[0].value = sheet.temperatureReadings[i].item;
-                if (inputs[2]) inputs[2].value = sheet.temperatureReadings[i].requiredRange;
+                var rowInputs = row.querySelectorAll('input');
+                if (rowInputs[0]) rowInputs[0].value = sheet.temperatureReadings[i].item;
+                if (rowInputs[2]) rowInputs[2].value = sheet.temperatureReadings[i].requiredRange;
             }
         }
     }
 
     // Add a note about the pre-population source
-    const notesField = document.getElementById('additionalNotes');
+    var notesField = document.getElementById('additionalNotes');
     if (notesField) {
-        const notes = [];
-        notes.push(`Pre-populated from Idox Uniform (${biz.premisesRef})`);
-        if (prev.riskCategory) notes.push(`Risk Category: ${prev.riskCategory}`);
-        if (prev.currentFhrsRating != null) notes.push(`Current FHRS: ${prev.currentFhrsRating}`);
-        if (prev.lastInspectionDate) notes.push(`Last Inspection: ${prev.lastInspectionDate}`);
-        if (prev.officerNotes) notes.push(`Officer Notes: ${prev.officerNotes}`);
+        var notes = [];
+        notes.push('Pre-populated from Idox Uniform (' + biz.premisesRef + ')');
+        if (prev.riskCategory) notes.push('Risk Category: ' + prev.riskCategory);
+        if (prev.currentFhrsRating != null) notes.push('Current FHRS: ' + prev.currentFhrsRating);
+        if (prev.lastInspectionDate) notes.push('Last Inspection: ' + prev.lastInspectionDate);
+        if (prev.officerNotes) notes.push('Officer Notes: ' + prev.officerNotes);
         notesField.value = notes.join('\n');
     }
 }
 
 function setField(id, value) {
-    const el = document.getElementById(id);
+    var el = document.getElementById(id);
     if (el) el.value = value;
 }
