@@ -9,7 +9,10 @@
     "build": "echo 'No build step required'",
     "test": "node --test server/**/*.test.js 2>/dev/null || echo 'No tests found'",
     "sync-properties": "node server/scripts/sync-properties.js",
-    "generate-reports": "node server/scripts/generate-reports.js"
+    "generate-reports": "node server/scripts/generate-reports.js",
+    "azure:install": "cd api && npm install",
+    "azure:migrate": "node scripts/migrate-sqlite-to-postgres.js",
+    "azure:deploy": "bash scripts/azure-deploy.sh"
   },
   "keywords": [
     "food-inspection",
