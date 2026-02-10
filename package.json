@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server/app.js",
     "dev": "node server/app.js",
+    "build": "echo 'No build step required'",
     "test": "node --test server/**/*.test.js 2>/dev/null || echo 'No tests found'",
     "sync-properties": "node server/scripts/sync-properties.js",
     "generate-reports": "node server/scripts/generate-reports.js"
@@ -19,6 +20,9 @@
   ],
   "author": "Gloucester City Council - Environmental Health Department",
   "license": "ISC",
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
     "express": "^4.21.0",
     "better-sqlite3": "^11.0.0"
