@@ -58,7 +58,7 @@ app.use('/api', apiRoutes);
 
 // Dashboard route
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'views', 'dashboard.html'));
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 // Visit sheet viewer
