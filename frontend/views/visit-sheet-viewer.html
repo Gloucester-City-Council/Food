@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visit Sheet - Gloucester City Council</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <style>
+    .container { max-width: 900px; padding: 20px; }
+    .loading { text-align: center; padding: 60px; color: #6c757d; }
+  </style>
+</head>
+<body>
+  <header class="main-header">
+    <div class="header-content">
+      <div class="logo-area">
+        <div class="logo-circle">GCC</div>
+        <div>
+          <h1>Gloucester City Council</h1>
+          <h2>Pre-Populated Food Inspection Visit Sheet</h2>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary btn-sm" onclick="window.print()">Print</button>
+        <a href="/" class="btn btn-secondary btn-sm">Back to Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="content" class="loading">Loading visit sheet...</div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const path = window.location.pathname;
+      const premisesRef = decodeURIComponent(path.split('/visit-sheet/')[1]);
+
+      if (!premisesRef) {
+        document.getElementById('content').innerHTML = '<p>No premises reference provided.</p>';
+        return;
+      }
+
+      try {
+        const resp = await fetch(`/api/visit-sheets/${encodeURIComponent(premisesRef)}`);
+        const sheet = await resp.json();
+        document.getElementById('content').innerHTML = '<div class="visit-sheet-output" style="display:block;">' +
+          '<p>Visit sheet loaded for: <strong>' + sheet.businessDetails.businessName + '</strong></p>' +
+          '<p>See the Dashboard Visit Sheet tab for the full rendered view.</p>' +
+          '</div>';
+      } catch (err) {
+        document.getElementById('content').innerHTML = '<p>Error loading visit sheet: ' + err.message + '</p>';
+      }
+    });
+  </script>
+</body>
+</html>

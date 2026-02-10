@@ -6,3 +6,8 @@ server/data/*.db-shm
 server/data/reports/
 *.log
 .DS_Store
+
+# Azure Functions
+api/local.settings.json
+api/node_modules/
+.azure/
