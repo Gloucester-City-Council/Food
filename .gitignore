@@ -1,8 +1,37 @@
-node_modules/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+venv/
+.venv/
+env/
+
+# Environment
 .env
-server/data/*.db
-server/data/*.db-wal
-server/data/*.db-shm
-server/data/reports/
+
+# Database
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/reports/
+
+# Logs
 *.log
+
+# OS
 .DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (legacy)
+node_modules/
