@@ -1,0 +1,5 @@
+flask>=3.0,<4.0
+zeep>=4.2,<5.0
+requests>=2.31,<3.0
+python-dotenv>=1.0,<2.0
+lxml>=5.0,<6.0
