@@ -30,7 +30,7 @@ def _get_client():
 
 def _load_sample_data():
     """Load sample premises data from the JSON file."""
-    sample_path = os.path.join(os.path.dirname(__file__), "data", "sample_premises.json")
+    sample_path = os.path.join(os.path.dirname(__file__), "..", "data", "sample_premises.json")
     if os.path.exists(sample_path):
         with open(sample_path, "r") as f:
             return json.load(f)

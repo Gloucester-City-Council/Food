@@ -7,10 +7,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Flask server
-PORT = int(os.getenv("PORT", "5000"))
+# Streamlit server
+PORT = int(os.getenv("PORT", "8501"))
 HOST = os.getenv("HOST", "127.0.0.1")
-DEBUG = os.getenv("FLASK_DEBUG", "0") == "1"
 
 # Idox Uniform SOAP Licensing Connector
 UNIFORM_SERVER = os.getenv("UNIFORM_SERVER", "apphst56a.gloucester.idox")
