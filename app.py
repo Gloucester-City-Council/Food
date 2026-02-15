@@ -89,6 +89,12 @@ def visit_sheet_viewer(premises_ref):
     return send_from_directory("templates", "visit_sheet_viewer.html")
 
 
+@app.route("/connection-test")
+def connection_tester():
+    """Serve the SOAP connectivity tester page."""
+    return send_from_directory("templates", "connection_tester.html")
+
+
 # -- Startup ---------------------------------------------------------------
 
 def initialise():

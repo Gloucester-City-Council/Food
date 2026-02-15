@@ -8,10 +8,12 @@ Provides REST endpoints for:
   - Report generation for premises owners
   - System status and Uniform connector health
   - SOAP licence lookups
+  - Ad-hoc SOAP connectivity testing
 """
 from flask import Blueprint, request, jsonify
 
 import database
+from soap_client import UniformSOAPClient
 from services import inspection_scheduler as scheduler
 from services import visit_sheet
 from services import report_generator
@@ -194,3 +196,117 @@ def fee_lookup(licence_type):
         return jsonify({"success": True, "data": result})
     except Exception as exc:
         return jsonify({"success": False, "error": str(exc)}), 500
+
+
+# -- Ad-hoc SOAP Connectivity Test ----------------------------------------
+
+@api.route("/uniform/test-connection", methods=["POST"])
+def test_soap_connection():
+    """
+    Test SOAP connectivity using user-supplied credentials.
+
+    Runs three sequential checks:
+      1. WSDL reachability - can we download and parse the WSDL?
+      2. Database aliases  - call GetUniformDatabaseAliases
+      3. Login cycle       - LogonToConnector / LogoffFromConnector
+
+    Expects JSON body with: server, state_switch, database_id, username, password, timeout
+    """
+    data = request.get_json(force=True)
+    server = (data.get("server") or "").strip()
+    state_switch = (data.get("state_switch") or "_TEST").strip()
+    database_id = (data.get("database_id") or "").strip()
+    username = (data.get("username") or "").strip()
+    password = (data.get("password") or "").strip()
+    timeout = int(data.get("timeout") or 30)
+
+    if not server:
+        return jsonify({"success": False, "error": "Server hostname is required"}), 400
+
+    wsdl_url = (
+        f"http://{server}"
+        f"/LicensingConnectorService{state_switch}"
+        f"/LicensingConnectorServices.asmx?WSDL"
+    )
+
+    results = {
+        "wsdl_url": wsdl_url,
+        "steps": [],
+    }
+
+    # Step 1 - WSDL reachability + parse
+    client = UniformSOAPClient(
+        wsdl_url=wsdl_url,
+        database_id=database_id or "N/A",
+        username=username or "N/A",
+        password=password or "N/A",
+        timeout=timeout,
+    )
+    try:
+        client._get_client()  # forces WSDL download + parse
+        results["steps"].append({
+            "name": "WSDL Reachability",
+            "passed": True,
+            "detail": f"Successfully downloaded and parsed WSDL from {wsdl_url}",
+        })
+    except Exception as exc:
+        results["steps"].append({
+            "name": "WSDL Reachability",
+            "passed": False,
+            "detail": str(exc),
+        })
+        results["success"] = False
+        return jsonify(results)
+
+    # Step 2 - GetUniformDatabaseAliases
+    try:
+        aliases = client.get_database_aliases()
+        results["steps"].append({
+            "name": "Database Aliases",
+            "passed": True,
+            "detail": f"Found {len(aliases)} database alias(es)",
+            "aliases": aliases,
+        })
+    except Exception as exc:
+        results["steps"].append({
+            "name": "Database Aliases",
+            "passed": False,
+            "detail": str(exc),
+        })
+        results["success"] = False
+        return jsonify(results)
+
+    # Step 3 - Login/Logoff cycle (only if credentials provided)
+    if database_id and username and password:
+        try:
+            client.logon(
+                database_id=database_id,
+                username=username,
+                password=password,
+            )
+            login_status = client.get_login_status()
+            client.logoff()
+            results["steps"].append({
+                "name": "Authentication",
+                "passed": True,
+                "detail": f"Login successful. Status: {login_status}",
+            })
+        except Exception as exc:
+            results["steps"].append({
+                "name": "Authentication",
+                "passed": False,
+                "detail": str(exc),
+            })
+            results["success"] = False
+            return jsonify(results)
+    else:
+        results["steps"].append({
+            "name": "Authentication",
+            "passed": None,
+            "detail": "Skipped - provide Database ID, Username & Password to test login",
+        })
+
+    results["success"] = all(
+        s["passed"] is True for s in results["steps"] if s["passed"] is not None
+    )
+    return jsonify(results)
