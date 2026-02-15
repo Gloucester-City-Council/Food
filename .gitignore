@@ -28,7 +28,6 @@ data/reports/
 Thumbs.db
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
